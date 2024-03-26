@@ -96,8 +96,6 @@ public class RestSample {
                     // application fail
                     throw new LoginException("login failed: " + content);
                 } else {
-                    // success
-                    // cookie = response.getFirstHeader("Set-Cookie").getValue();       // request header에 cookie 자동적용
                     System.out.println("login successfully");
                 }
             } else {
