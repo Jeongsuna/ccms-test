@@ -1,7 +1,6 @@
 package org.example;
 
 import org.apache.http.*;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -36,7 +35,6 @@ import java.util.concurrent.TimeUnit;
  *      - check analysis status
  *      - analysis result
  *      - checkLogin
- *
  *  테스트 전 코드마인드에 프로젝트(ex. kr.codemind.lab)가 등록 되어있어야 합니다. (git or 소스경로지정)
  *  아래 서버 URL 및 인증정보 그리고 프로젝트 명을 기입 한 후 실행하면 됩니다.
  */
@@ -67,13 +65,13 @@ public class RestSample {
 
         checkLogin();
 
-        analyze(PROJECT_NAME);
+        analyze();
 
-        int seq = checkAnal(PROJECT_NAME);
+        int seq = checkAnal();
 
-        loadAnalysisResult(PROJECT_NAME, seq);
+        loadAnalysisResult(seq);
 
-        loadAnalysisResultRuleStatistics(PROJECT_NAME, seq);
+        loadAnalysisResultRuleStatistics(seq);
 
         addProject();
         updateProject();
@@ -82,82 +80,64 @@ public class RestSample {
 
     /**
      * 로그인
-     * @throws IOException
      */
     private static void login() throws IOException {
         HttpPost post = new HttpPost(CODEMIND_URL + "/user/login/process");
-        List<NameValuePair> entity = new ArrayList();
+        List<NameValuePair> entity = new ArrayList<>();
         entity.add(new BasicNameValuePair("REQUEST_KIND", "API"));
         entity.add(new BasicNameValuePair("username", USERNAME));
         entity.add(new BasicNameValuePair("password", PASSWORD));
         post.setEntity(new UrlEncodedFormEntity(entity));
 
-        CloseableHttpResponse response = null;
-        try {
-            response = httpclient.execute(post);
+        try (CloseableHttpResponse response = httpclient.execute(post)) {
             String content = new BasicResponseHandler().handleEntity(response.getEntity());
-            if( response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                if(content.startsWith("CM-")) {
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                if (content.startsWith("CM-")) {
                     // application fail
                     throw new LoginException("login failed: " + content);
-                }
-                else {
+                } else {
                     // success
                     // cookie = response.getFirstHeader("Set-Cookie").getValue();       // request header에 cookie 자동적용
                     System.out.println("login successfully");
                 }
-            }
-            else {
+            } else {
                 throw new HttpResponseException(response.getStatusLine().getStatusCode(), content);
             }
-        }
-        catch(Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
-        }
-        finally {
-            if(response != null) response.close();
         }
     }
 
     /**
      * 프로젝트 분석 요청
-     * @param projectName
-     * @throws IOException
      */
-    private static void analyze(String projectName) throws IOException {
-        HttpPost post = new HttpPost(CODEMIND_URL + "/api/analysis/" + projectName);      // 현재 API
-        CloseableHttpResponse response = null;
-        try {
-            response = httpclient.execute(post);
+    private static void analyze() throws IOException {
+        HttpPost post = new HttpPost(CODEMIND_URL + "/api/analysis/" + RestSample.PROJECT_NAME);      // 현재 API
+        try (CloseableHttpResponse response = httpclient.execute(post)) {
             String content = new BasicResponseHandler().handleEntity(response.getEntity());
-            if( response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 JSONObject json = new JSONObject(content);
                 throw new InvalidParameterException(json.getString("message"));
-            }
-            else {
+            } else {
                 System.out.println("start analyzing...");
             }
-        } finally {
-            if(response != null) response.close();
         }
     }
 
     /**
      * 프로젝트 분석 진행상태 체크
-     * @param projectName
-     * @throws IOException
      */
-    private static int checkAnal(String projectName) throws IOException {
+    private static int checkAnal() throws IOException {
         CloseableHttpResponse response = null;
         int sequence = 0;
         try {
             int count = 0;
             while(true) {
                 if( count >= REQUEST_TIMEOUT ) {
-                    System.out.println(String.format("[%s] analysis failed: request timeout %s sec.", projectName, count));
+                    System.out.printf("[%s] analysis failed: request timeout %s sec.%n", RestSample.PROJECT_NAME, count);
                     break;
                 }
-                HttpGet get = new HttpGet(CODEMIND_URL + "/api/" + projectName + "/status");
+                HttpGet get = new HttpGet(CODEMIND_URL + "/api/" + RestSample.PROJECT_NAME + "/status");
                 response = httpclient.execute(get);
                 String content = new BasicResponseHandler().handleEntity(response.getEntity());
                 if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
@@ -193,23 +173,16 @@ public class RestSample {
 
     /**
      * 진행중인 상태 체크
-     * @param status
-     * @return
      */
     private static boolean isRunning(String status) {
-        if(!status.equals("success") && !status.equals("stop") && !status.equals("fail") && !status.equals("")) {
-            return true;
-        }
-        return false;
+        return !status.equals("success") && !status.equals("stop") && !status.equals("fail") && !status.isEmpty();
     }
 
     /**
      * 프로젝트 분석 결과 조회
-     * @param projectName
-     * @param sequence
      */
-    private static void loadAnalysisResult(String projectName, int sequence) throws IOException {
-        String url = CODEMIND_URL + "/api/" + projectName + "/" + sequence + "/analysis-result";
+    private static void loadAnalysisResult(int sequence) throws IOException {
+        String url = CODEMIND_URL + "/api/" + RestSample.PROJECT_NAME + "/" + sequence + "/analysis-result";
         System.out.println("URL: " + url);
         HttpGet get = new HttpGet(url);
         CloseableHttpResponse response = httpclient.execute(get);
@@ -402,11 +375,9 @@ public class RestSample {
 
     /**
      * 프로젝트 분석 결과 조회
-     * @param projectName
-     * @param sequence
      */
-    private static void loadAnalysisResultRuleStatistics(String projectName, int sequence) throws IOException {
-        String url = CODEMIND_URL + "/api/" + projectName + "/" + sequence + "/analysis-result-rule-statistics";
+    private static void loadAnalysisResultRuleStatistics(int sequence) throws IOException {
+        String url = CODEMIND_URL + "/api/" + RestSample.PROJECT_NAME + "/" + sequence + "/analysis-result-rule-statistics";
         System.out.println("URL: " + url);
         HttpGet get = new HttpGet(url);
         CloseableHttpResponse response = httpclient.execute(get);
@@ -433,7 +404,6 @@ public class RestSample {
     private static void checkLogin() throws IOException {
         CloseableHttpResponse response = null;
         try {
-            int count = 0;
             HttpGet get = new HttpGet(CODEMIND_URL + "/user/login/check");
             get.setHeader("Referer", "http://127.0.0.1:8080/user/login/process");       // value 값에 아무 URL을 전달하면 됩니다.
             System.out.println("Referer: " + get.getFirstHeader("Referer"));
@@ -457,19 +427,7 @@ public class RestSample {
         HttpPost post = new HttpPost(CODEMIND_URL + "/api/project/create");
         CloseableHttpResponse response = null;
         try {
-            List<NameValuePair> entity = new ArrayList();
-            entity.add(new BasicNameValuePair("name", "PJ00001"));
-            entity.add(new BasicNameValuePair("title", "sample project by RestSample"));
-            entity.add(new BasicNameValuePair("repotype", "git"));
-            entity.add(new BasicNameValuePair("repopath", "https://github.com/TheAlgorithms/Java.git"));
-            entity.add(new BasicNameValuePair("branch", "master"));
-            entity.add(new BasicNameValuePair("repoid", ""));
-            entity.add(new BasicNameValuePair("repopw", ""));
-            entity.add(new BasicNameValuePair("buildEnvId", "2"));
-            entity.add(new BasicNameValuePair("ruleset_list", "1,2,3"));
-            entity.add(new BasicNameValuePair("analtimeout", "0"));
-            entity.add(new BasicNameValuePair("equalizer", "100/50/100/100"));
-            entity.add(new BasicNameValuePair("_csrf", csrf));
+            List<NameValuePair> entity = getNameValuePairs();
             post.setEntity(new UrlEncodedFormEntity(entity));
             post.setHeader("Referer", "http://10.0.0.23:8080");
             response = httpclient.execute(post);
@@ -485,18 +443,29 @@ public class RestSample {
         }
     }
 
+    private static List<NameValuePair> getNameValuePairs() {
+        List<NameValuePair> entity = new ArrayList<>();
+        entity.add(new BasicNameValuePair("name", "PJ00001"));
+        entity.add(new BasicNameValuePair("title", "sample project by RestSample"));
+        entity.add(new BasicNameValuePair("repotype", "git"));
+        entity.add(new BasicNameValuePair("repopath", "https://github.com/TheAlgorithms/Java.git"));
+        entity.add(new BasicNameValuePair("branch", "master"));
+        entity.add(new BasicNameValuePair("repoid", ""));
+        entity.add(new BasicNameValuePair("repopw", ""));
+        entity.add(new BasicNameValuePair("buildEnvId", "2"));
+        entity.add(new BasicNameValuePair("ruleset_list", "1,2,3"));
+        entity.add(new BasicNameValuePair("analtimeout", "0"));
+        entity.add(new BasicNameValuePair("equalizer", "100/50/100/100"));
+        entity.add(new BasicNameValuePair("_csrf", csrf));
+        return entity;
+    }
+
     private static void updateProject() throws IOException {
         HttpPut put = new HttpPut(CODEMIND_URL + "/api/project/PJ00001/update");
         CloseableHttpResponse response = null;
         try {
             // 삼성화재 요청한 parameters: title, branch, analtimeout, equalizer, _csrf, projectName, buildEnvId, repoType, repoPath, rulesetList
-            List<NameValuePair> entity = new ArrayList();
-            entity.add(new BasicNameValuePair("title", "sample project modified by RestSample"));
-            entity.add(new BasicNameValuePair("repoType", "git"));
-            entity.add(new BasicNameValuePair("repoPath", "https://github.com/TheAlgorithms/Java.git"));
-            entity.add(new BasicNameValuePair("branch", "master"));
-            entity.add(new BasicNameValuePair("buildEnvId", "2"));
-            entity.add(new BasicNameValuePair("rulesetList", "1,2,3"));
+            List<NameValuePair> entity = getValuePairs();
             put.setEntity(new UrlEncodedFormEntity(entity));
             response = httpclient.execute(put);
             String content = new BasicResponseHandler().handleEntity(response.getEntity());
@@ -511,10 +480,20 @@ public class RestSample {
         }
     }
 
+    private static List<NameValuePair> getValuePairs() {
+        List<NameValuePair> entity = new ArrayList<>();
+        entity.add(new BasicNameValuePair("title", "sample project modified by RestSample"));
+        entity.add(new BasicNameValuePair("repoType", "git"));
+        entity.add(new BasicNameValuePair("repoPath", "https://github.com/TheAlgorithms/Java.git"));
+        entity.add(new BasicNameValuePair("branch", "master"));
+        entity.add(new BasicNameValuePair("buildEnvId", "2"));
+        entity.add(new BasicNameValuePair("rulesetList", "1,2,3"));
+        return entity;
+    }
+
     private static void deleteProject() throws IOException {
         CloseableHttpResponse response = null;
         try {
-            int count = 0;
             HttpGet get = new HttpGet(CODEMIND_URL + "/api/project/PJ00001/delete");
             response = httpclient.execute(get);
             String content = new BasicResponseHandler().handleEntity(response.getEntity());
