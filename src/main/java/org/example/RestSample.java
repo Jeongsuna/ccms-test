@@ -233,7 +233,7 @@ public class RestSample {
         CloseableHttpResponse response = null;
         try {
             HttpGet get = new HttpGet(CODEMIND_URL + "/user/login/check");
-            get.setHeader("Referer", "http://127.0.0.1:8080/user/login/process");       // value 값에 아무 URL을 전달하면 됩니다.
+            get.setHeader("Referer", "http://127.0.0.1:8080/user/login/process");       // value 값에 아무 URL 을 전달하면 됩니다.
             System.out.println("Referer: " + get.getFirstHeader("Referer"));
             response = httpclient.execute(get);
             String content = new BasicResponseHandler().handleEntity(response.getEntity());
@@ -275,14 +275,14 @@ public class RestSample {
         List<NameValuePair> entity = new ArrayList<>();
         entity.add(new BasicNameValuePair("name", "PJ00001"));
         entity.add(new BasicNameValuePair("title", "sample project by RestSample"));
-        entity.add(new BasicNameValuePair("repotype", "git"));
-        entity.add(new BasicNameValuePair("repopath", "https://github.com/TheAlgorithms/Java.git"));
+        entity.add(new BasicNameValuePair("repoType", "git"));
+        entity.add(new BasicNameValuePair("repoPath", "https://github.com/TheAlgorithms/Java.git"));
         entity.add(new BasicNameValuePair("branch", "master"));
-        entity.add(new BasicNameValuePair("repoid", ""));
-        entity.add(new BasicNameValuePair("repopw", ""));
+        entity.add(new BasicNameValuePair("repoId", ""));
+        entity.add(new BasicNameValuePair("repoPw", ""));
         entity.add(new BasicNameValuePair("buildEnvId", "2"));
         entity.add(new BasicNameValuePair("ruleset_list", "1,2,3"));
-        entity.add(new BasicNameValuePair("analtimeout", "0"));
+        entity.add(new BasicNameValuePair("analTimeout", "0"));
         entity.add(new BasicNameValuePair("equalizer", "100/50/100/100"));
         entity.add(new BasicNameValuePair("_csrf", csrf));
         return entity;
@@ -292,7 +292,7 @@ public class RestSample {
         HttpPut put = new HttpPut(CODEMIND_URL + "/api/project/PJ00001/update");
         CloseableHttpResponse response = null;
         try {
-            // 삼성화재 요청한 parameters: title, branch, analtimeout, equalizer, _csrf, projectName, buildEnvId, repoType, repoPath, rulesetList
+            // 삼성화재 요청한 parameters: title, branch, analTimeout, equalizer, _csrf, projectName, buildEnvId, repoType, repoPath, rulesetList
             List<NameValuePair> entity = getValuePairs();
             put.setEntity(new UrlEncodedFormEntity(entity));
             response = httpclient.execute(put);
