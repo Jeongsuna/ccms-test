@@ -6,13 +6,11 @@ import org.odftoolkit.odfdom.doc.table.OdfTableCell;
 import org.odftoolkit.odfdom.doc.table.OdfTableColumn;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-// Shift을(를) 두 번 눌러 전체 검색 대화상자를 열고 'show whitespaces'를 입력한 다음,
-// Enter를 누르세요. 그러면 코드 내에서 공백 문자를 확인할 수 있습니다.
+// Shift 을(를) 두 번 눌러 전체 검색 대화상자를 열고 'show whitespaces' 를 입력한 다음,
+// 엔터를 누르세요. 그러면 코드 내에서 공백 문자를 확인할 수 있습니다.
 public class Main {
 
     public static final String[] headers = {"순번", "규칙 이름", "규칙 코드", "위험도"};
@@ -43,7 +41,6 @@ public class Main {
                 case 1:
                 case 2:
                     column.setWidth(70);
-                    return;
             }
         }
         else if(instance instanceof OdfTableCell){
@@ -79,12 +76,12 @@ public class Main {
 
         StringBuilder oSb = new StringBuilder();
 
-        if( lHour > 0 )   oSb.append(Long.valueOf(lHour)+"h ");
-        if( lMin > 0 )    oSb.append(Long.valueOf(lMin)+"m ");
-        if( lSecond > 0 ) oSb.append(Long.valueOf(lSecond)+"s ");
+        if( lHour > 0 )   oSb.append(Long.valueOf(lHour)).append("h ");
+        if( lMin > 0 )    oSb.append(Long.valueOf(lMin)).append("m ");
+        if( lSecond > 0 ) oSb.append(Long.valueOf(lSecond)).append("s ");
 
-        // milliseconds는 필수로 포함시키도록 한다.
-        oSb.append(Long.valueOf(lMillis)+"ms");
+        // milliseconds 는 필수로 포함시키도록 한다.
+        oSb.append(Long.valueOf(lMillis)).append("ms");
 
         //return hms;
         return oSb.toString();
@@ -105,9 +102,7 @@ public class Main {
         setColumnStyle(table, colCnt);
 
         String path = "C:\\Users\\user\\Codemind_toy\\Codemind_ODT\\report\\";
-        String filename = "odt검증_0.11.0_2.odt";
-//        document.save(path + filename);
-//        odf.save("abc.odt");
+        String filename = "odt 검증_0.11.0_2.odt";
         odf.save(path + filename);
 
         long endTime = System.currentTimeMillis();
