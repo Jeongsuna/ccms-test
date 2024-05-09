@@ -64,6 +64,8 @@ class ServerList extends ArrayList<ConnectionNotice> {
         this.add( new ConnectionNotice("서버2", ConnectionNotice.ONE_MINUTE)); // 1분주기 알람설정
         this.add( new ConnectionNotice("서버3", ConnectionNotice.ONE_SEC * 30) ); // 30초 주기 알람설정
         this.add( new ConnectionNotice("서버4", ConnectionNotice.ONE_SEC * 10) ); // 10초 주기 알람 설정
+        this.add( new ConnectionNotice("서버4", ConnectionNotice.ONE_SEC * 10) ); // 10초 주기 알람 설정
+        this.add( new ConnectionNotice("서버4", ConnectionNotice.ONE_SEC * 10) ); // 10초 주기 알람 설정
     }
 
     public void roundCheckAndSendNotice(){
