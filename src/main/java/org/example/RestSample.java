@@ -161,6 +161,7 @@ public class RestSample {
                 count += 5;
                 TimeUnit.SECONDS.sleep(5);
             }
+            System.out.println(count);
         } catch (InterruptedException e) {
             // noop
         } finally {
