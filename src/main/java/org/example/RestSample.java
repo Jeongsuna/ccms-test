@@ -122,8 +122,8 @@ public class RestSample {
         }
     }
 
-    /**
-     * 프로젝트 분석 진행상태 체크
+    /**ㅓㅓㅓ
+     * 프로젝트 분석 진행상태 체크djfkal;jfdklajseohn;alkhv;ael;hb;hio;aefjkdlwobnagorih
      */
     private static int checkAnal() throws IOException {
         CloseableHttpResponse response = null;
