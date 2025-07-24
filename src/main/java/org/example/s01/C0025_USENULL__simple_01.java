@@ -5,12 +5,12 @@ import java.util.Iterator;
 
 public class C0025_USENULL__simple_01 {
 
-    public static int bad (Object obj, final Collection col) {
+    public static int bad (Object obj, final Collection collection) {
         int count = 2;
-        if (col == null) {
+        if (collection == null) {
             return count;
         }
-        Iterator it = col.iterator();
+        Iterator it = collection.iterator();
 
         while (it.hasNext()) {
             Object elt = it.next();
