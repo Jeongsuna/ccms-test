@@ -17,6 +17,7 @@ public class C0025_USENULL__simple_01 {
             /* FLAW: CWE-476 */
             if ((null == obj && null == elt) || obj.equals(elt)) {
                 count++;
+                count++;
             }
         }
         return count;
