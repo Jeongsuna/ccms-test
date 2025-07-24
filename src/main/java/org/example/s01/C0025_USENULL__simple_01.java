@@ -6,7 +6,7 @@ import java.util.Iterator;
 public class C0025_USENULL__simple_01 {
 
     public static int bad (Object obj, final Collection col) {
-        int count = 0;
+        int count = 2;
         if (col == null) {
             return count;
         }
