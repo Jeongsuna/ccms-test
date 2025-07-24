@@ -8,6 +8,7 @@ public class TT {
         // Job 도는 부분이라고 생각하면 될듯
 
         long consumeTime = 0;
+        long consumeTime1 = 0;
         while ( true ){
             long sleepTime = 1000;
             Thread.sleep( sleepTime ); // 1초마다 한번씩
