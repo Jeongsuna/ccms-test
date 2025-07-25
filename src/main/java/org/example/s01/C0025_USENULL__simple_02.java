@@ -19,6 +19,8 @@ public class C0025_USENULL__simple_02 {
                 count++;
             }
         }
+
+        int count2 = 2;
         return count;
     }
 
