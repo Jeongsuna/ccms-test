@@ -24,7 +24,7 @@ jobs:
 
     defaults:
       run:
-        shell: 'C:/Program Files/Git/bin/bash.exe -eo pipefail {0}'
+        shell: 'C:/Users/user/AppData/Local/Microsoft/WindowsApps/bash.exe -eo pipefail {0}'
 
     env:
       CODEMIND_BASE_URL: "http://${{ secrets.CODEMIND_HOST }}"
