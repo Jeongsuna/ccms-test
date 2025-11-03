@@ -37,10 +37,7 @@ jobs:
         env:
           USERNAME: ${{ secrets.CODEMIND_USERNAME }}
           PASSWORD: ${{ secrets.CODEMIND_PASSWORD }}
-        shell: C:/Program Files/Git/bin/bash.exe -eo pipefail {0}
         run: |
-          export PATH="/c/Program Files/Git/bin:$PATH"
-          
           echo "Attempting login to $CODEMIND_BASE_URL"
 
           loginRes=$(curl -c cookie.txt -o /dev/null -s -w "%{http_code}" \
@@ -55,10 +52,7 @@ jobs:
           fi
 
       - name: 2. Check Valid Project
-        shell: C:/Program Files/Git/bin/bash.exe -eo pipefail {0}
         run: |
-          export PATH="/c/Program Files/Git/bin:$PATH"
-          
           validProjectRes=$(curl -b cookie.txt -H 'Accept:application/json' -o /dev/null -s -w "%{http_code}" \
             "$CODEMIND_BASE_URL/api/project/$PROJECT_NAME/info" -k)
           
@@ -70,10 +64,7 @@ jobs:
           fi
 
       - name: 3. Code Analysis Request
-        shell: C:/Program Files/Git/bin/bash.exe -eo pipefail {0}
         run: |
-          export PATH="/c/Program Files/Git/bin:$PATH"
-          
           queryParams="checkDuplicatedAnalysis=false&checkoutMode=HEAD"
 
           if [ -n "$COMMIT_ID" ]; then
@@ -101,10 +92,7 @@ jobs:
 
       - name: 4. Monitor Analysis Progress
         timeout-minutes: 30
-        shell: C:/Program Files/Git/bin/bash.exe -eo pipefail {0}
         run: |
-          export PATH="/c/Program Files/Git/bin:$PATH"
-          
           statusUrl="$CODEMIND_BASE_URL/api/project/$PROJECT_NAME/status"
           echo "Monitoring status at: $statusUrl"
           
@@ -146,10 +134,7 @@ jobs:
           done
 
       - name: 5. Analysis Quality Results
-        shell: C:/Program Files/Git/bin/bash.exe -eo pipefail {0}
         run: |
-          export PATH="/c/Program Files/Git/bin:$PATH"
-          
           echo "Checking quality results for sequence: $SEQUENCE"
           
           response=$(curl -f -b cookie.txt -H 'Accept:application/json' -s \
