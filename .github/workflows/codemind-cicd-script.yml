@@ -96,6 +96,27 @@ jobs:
           echo "Sleeping 5 seconds..."
           sleep 5
 
+      - name: 3.5. Debug Environment
+        run: |
+          echo "=================== DEBUGGING ENVIRONMENT ==================="
+          
+          echo "--- 1. 현재 PATH 변수 ---"
+          echo $PATH
+          
+          echo "--- 2. 'bash' 실행 파일 위치 (which) ---"
+          which bash
+          
+          echo "--- 3. 'curl' 실행 파일 위치 (which) ---"
+          which curl
+          
+          echo "--- 4. 'jq' 실행 파일 위치 (which) ---"
+          which jq || echo "!!! 'which jq' FAILED (jq not in PATH)"
+          
+          echo "--- 5. 'C:/Program Files/Git/bin/' 폴더 실제 내용 ---"
+          ls -la 'C:/Program Files/Git/bin/' | grep -E 'bash|curl|jq' || echo "!!! ls FAILED (path not found?)"
+          
+          echo "==========================================================="
+
       - name: 4. Monitor Analysis Progress
         timeout-minutes: 30
         run: |
