@@ -19,8 +19,12 @@ on:
 
 jobs:
   codemind-analysis:
-    name: Run Codemind Analysis
+    name: Run Codemind
     runs-on: self-hosted
+
+    defaults:
+      run:
+        shell: bash
 
     env:
       CODEMIND_BASE_URL: "http://${{ secrets.CODEMIND_HOST }}"
