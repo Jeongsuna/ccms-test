@@ -24,8 +24,7 @@ jobs:
 
     defaults:
       run:
-        # 윈도우 러너에 내장된 Git Bash의 '전체 경로'를 명시적으로 지정
-        shell: 'C:\Program Files\Git\bin\bash.exe -eo pipefail {0}'
+        shell: 'C:/Program Files/Git/bin/bash.exe -eo pipefail {0}'
 
     env:
       CODEMIND_BASE_URL: "http://${{ secrets.CODEMIND_HOST }}"
