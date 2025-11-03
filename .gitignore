@@ -1,0 +1,23 @@
+# .gitignore
+
+# Maven 빌드 출력 폴더
+/target/
+
+# Eclipse IDE 설정 폴더
+/.settings/
+
+# Eclipse IDE 기타 설정 파일
+/.classpath
+/.project
+
+# IntelliJ IDE 설정 폴더
+/.idea/
+
+# VSCode 설정 폴더
+/.vscode/
+
+# 로그 파일
+*.log
+
+# Mac OS 시스템 파일
+.DS_Store
