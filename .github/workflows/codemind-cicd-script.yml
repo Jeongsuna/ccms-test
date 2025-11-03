@@ -31,6 +31,7 @@ jobs:
       PROJECT_NAME: ${{ github.event.inputs.PROJECT_NAME }}
       BRANCH_NAME: ${{ github.event.inputs.BRANCH_NAME }}
       COMMIT_ID: ${{ github.event.inputs.COMMIT_ID }}
+      GIT_BIN_PATH: /c/Program Files/Git/bin
 
     steps:
       - name: 1. Login
@@ -38,6 +39,8 @@ jobs:
           USERNAME: ${{ secrets.CODEMIND_USERNAME }}
           PASSWORD: ${{ secrets.CODEMIND_PASSWORD }}
         run: |
+          export PATH="$GIT_BIN_PATH:$PATH"
+          
           echo "Attempting login to $CODEMIND_BASE_URL"
 
           loginRes=$(curl -c cookie.txt -o /dev/null -s -w "%{http_code}" \
@@ -53,6 +56,8 @@ jobs:
 
       - name: 2. Check Valid Project
         run: |
+          export PATH="$GIT_BIN_PATH:$PATH"
+          
           validProjectRes=$(curl -b cookie.txt -H 'Accept:application/json' -o /dev/null -s -w "%{http_code}" \
             "$CODEMIND_BASE_URL/api/project/$PROJECT_NAME/info" -k)
           
@@ -65,6 +70,8 @@ jobs:
 
       - name: 3. Code Analysis Request
         run: |
+          export PATH="$GIT_BIN_PATH:$PATH"
+          
           queryParams="checkDuplicatedAnalysis=false&checkoutMode=HEAD"
 
           if [ -n "$COMMIT_ID" ]; then
@@ -93,7 +100,7 @@ jobs:
       - name: 4. Monitor Analysis Progress
         timeout-minutes: 30
         run: |
-          export PATH="/c/Program Files/Git/bin:$PATH"
+          export PATH="$GIT_BIN_PATH:$PATH"
           echo "--- (Debug) After PATH export, 'which jq' ---"
           which jq
           
@@ -139,7 +146,7 @@ jobs:
 
       - name: 5. Analysis Quality Results
         run: |
-          export PATH="/c/Program Files/Git/bin:$PATH"
+          export PATH="$GIT_BIN_PATH:$PATH"
           
           echo "Checking quality results for sequence: $SEQUENCE"
           
