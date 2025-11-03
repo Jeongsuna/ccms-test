@@ -20,7 +20,7 @@ on:
 jobs:
   codemind-analysis:
     name: Run Codemind Analysis
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     env:
       CODEMIND_BASE_URL: "http://${{ secrets.CODEMIND_HOST }}"
