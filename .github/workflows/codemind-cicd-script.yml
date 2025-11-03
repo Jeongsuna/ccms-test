@@ -24,7 +24,7 @@ jobs:
 
     defaults:
       run:
-        shell: 'C:/Users/user/AppData/Local/Microsoft/WindowsApps/bash.exe -eo pipefail {0}'
+        shell: bash
 
     env:
       CODEMIND_BASE_URL: "http://${{ secrets.CODEMIND_HOST }}"
@@ -33,21 +33,25 @@ jobs:
       COMMIT_ID: ${{ github.event.inputs.COMMIT_ID }}
 
     steps:
+      - name: 0. Set Bash (Git Bash) Path
+        shell: powershell
+        run: |
+          echo "C:\Program Files\Git\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "Workflow PATH modified to prioritize Git Bash."
+
       - name: 1. Login
         env:
           USERNAME: ${{ secrets.CODEMIND_USERNAME }}
           PASSWORD: ${{ secrets.CODEMIND_PASSWORD }}
         run: |
           echo "Attempting login to $CODEMIND_BASE_URL"
-          
-          # Jenkins의 'curl -c cookie'와 동일. 쿠키를 cookie.txt 파일에 저장
+
           loginRes=$(curl -c cookie.txt -o /dev/null -s -w "%{http_code}" \
             -d "username=$USERNAME&password=$PASSWORD&REQUEST_KIND=API" \
             "$CODEMIND_BASE_URL/user/login/process" -k)
           
           echo "Authentication response from Codemind server: $loginRes"
-          
-          # Jenkins의 'error'와 동일. 'exit 1'은 단계를 실패시킴
+
           if [ "$loginRes" != "200" ]; then
             echo "LOGIN_FAIL: Unable to authenticate with Codemind server."
             exit 1
@@ -55,23 +59,20 @@ jobs:
 
       - name: 2. Check Valid Project
         run: |
-          # 'curl -b cookie.txt'로 저장된 쿠키 파일을 사용
           validProjectRes=$(curl -b cookie.txt -H 'Accept:application/json' -o /dev/null -s -w "%{http_code}" \
             "$CODEMIND_BASE_URL/api/project/$PROJECT_NAME/info" -k)
           
           if [ "$validProjectRes" == "200" ]; then
             echo "Project($PROJECT_NAME) is valid"
           else
-            # 원본 Jenkins 스크립트가 이 단계에서 실패 처리를 하지 않았으므로 동일하게 echo만 함
             echo "Project($PROJECT_NAME) not valid. HTTP Status: $validProjectRes"
+            exit 1
           fi
 
       - name: 3. Code Analysis Request
         run: |
-          # Jenkins의 Groovy 리스트 대신 Shell 변수로 쿼리 스트링 구성
           queryParams="checkDuplicatedAnalysis=false&checkoutMode=HEAD"
-          
-          # Jenkins의 if(COMMIT_ID) -> Shell의 if [ -n "$VAR" ]
+
           if [ -n "$COMMIT_ID" ]; then
             queryParams="$queryParams&revision=$COMMIT_ID"
           fi
@@ -102,23 +103,17 @@ jobs:
           echo "Monitoring status at: $statusUrl"
           
           while true; do
-            # Jenkins의 'try-catch'와 유사하게, curl -f로 HTTP 오류 시 스크립트가 멈추지 않게 처리
-            # 또는 'set +e' / 'set -e'를 사용할 수 있지만, curl의 exit 코드를 확인하는 것이 더 명확함
             data=$(curl -b cookie.txt -H 'Accept:application/json' -s "$statusUrl" -k)
           
             if [ $? -ne 0 ]; then
                echo "Error fetching status (curl failed). Retrying in 5s..."
                sleep 5
-               continue # 다음 루프 실행
+               continue
             fi
 
-            # 6. JSON 파싱 (Jenkins의 JsonSlurper -> GHA의 jq)
-            # ubuntu-latest 러너에는 'jq'가 기본 설치되어 있음
             status=$(echo "$data" | jq -re '.status')
             sequence=$(echo "$data" | jq -re '.sequence')
-          
-            # 7. 단계 간 변수 전달 (Jenkins의 env.VAR = ... -> GHA의 $GITHUB_ENV)
-            # 'SEQUENCE' 값을 다음 단계(Step)에서 사용할 수 있도록 GITHUB_ENV에 저장
+
             echo "SEQUENCE=$sequence" >> $GITHUB_ENV
           
             timestamp=$(date --iso-8601=seconds --utc)
@@ -146,7 +141,6 @@ jobs:
 
       - name: 5. Analysis Quality Results
         run: |
-          # 7. $GITHUB_ENV로 설정된 변수는 $VAR 형태로 즉시 사용 가능
           echo "Checking quality results for sequence: $SEQUENCE"
           
           response=$(curl -f -b cookie.txt -H 'Accept:application/json' -s \
@@ -158,8 +152,7 @@ jobs:
           fi
           
           echo "Quality analysis results for project ($PROJECT_NAME): $response"
-          
-          # jq로 boolean 값 확인. (json.result != true)
+
           result=$(echo "$response" | jq -re '.result')
           
           if [ "$result" != "true" ]; then
@@ -168,5 +161,4 @@ jobs:
             exit 1
           else
             echo "Code quality check passed"
-            # 'exit 1'이 없으면 성공(Success)으로 끝남
           fi
