@@ -31,6 +31,7 @@ jobs:
       PROJECT_NAME: ${{ github.event.inputs.PROJECT_NAME }}
       BRANCH_NAME: ${{ github.event.inputs.BRANCH_NAME }}
       COMMIT_ID: ${{ github.event.inputs.COMMIT_ID }}
+      GIT_BIN_PATH_WIN: /c/Program Files/Git/bin
 
     steps:
       - name: 0. Set Bash (Git Bash) Path (Windows Only)
@@ -100,6 +101,10 @@ jobs:
       - name: 4. Monitor Analysis Progress
         timeout-minutes: 30
         run: |
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            export PATH="$GIT_BIN_PATH_WIN:$PATH"
+          fi
+          
           statusUrl="$CODEMIND_BASE_URL/api/project/$PROJECT_NAME/status"
           echo "Monitoring status at: $statusUrl"
           
@@ -147,6 +152,10 @@ jobs:
 
       - name: 5. Analysis Quality Results
         run: |
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            export PATH="$GIT_BIN_PATH_WIN:$PATH"
+          fi
+          
           echo "Checking quality results for sequence: $SEQUENCE"
           
           response=$(curl -f -b cookie.txt -H 'Accept:application/json' -s \
