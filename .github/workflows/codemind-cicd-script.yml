@@ -168,7 +168,6 @@ jobs:
           
           if [ "$result" != "true" ]; then
             echo "::error::Code quality check failed (weakness detected: $weaknessCount)"
-            sleep 1
             exit 1
           else
             echo "Code quality check passed"
