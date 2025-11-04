@@ -55,7 +55,7 @@ jobs:
           echo "Authentication response from Codemind server: $loginRes"
 
           if [ "$loginRes" != "200" ]; then
-            echo "::error::LOGIN_FAIL: Unable to authenticate with Codemind server."
+            echo "LOGIN_FAIL: Unable to authenticate with Codemind server."
             exit 1
           fi
 
@@ -67,7 +67,7 @@ jobs:
           if [ "$validProjectRes" == "200" ]; then
             echo "Project($PROJECT_NAME) is valid"
           else
-            echo "::error::Project($PROJECT_NAME) not valid. HTTP Status: $validProjectRes"
+            echo "Project($PROJECT_NAME) not valid. HTTP Status: $validProjectRes"
             exit 1
           fi
 
@@ -91,7 +91,7 @@ jobs:
           if [ "$statusCode" == "200" ]; then
             echo "Response from starting analysis project ($PROJECT_NAME) was successful."
           else
-            echo "::error::Failed to start analysis project ($PROJECT_NAME). Status code: $statusCode"
+            echo "Failed to start analysis project ($PROJECT_NAME). Status code: $statusCode"
             exit 1
           fi
           
@@ -130,11 +130,11 @@ jobs:
               break
             elif [ "$status" == "stop" ]; then
               echo "================ Codemind project($PROJECT_NAME) analysis stopped ==============="
-              echo "::error::Analysis Stopped for project $PROJECT_NAME"
+              echo "Analysis Stopped for project $PROJECT_NAME"
               exit 1
             elif [ "$status" == "fail" ]; then
               echo "================ Codemind project($PROJECT_NAME) analysis failed ==============="
-              echo "::error::Analysis failed for project $PROJECT_NAME"
+              echo "Analysis failed for project $PROJECT_NAME"
               exit 1
             elif [ "$status" == "reserved" ]; then
               echo "======================= Codemind project($PROJECT_NAME) reserved... =================="
@@ -157,7 +157,7 @@ jobs:
             "$CODEMIND_BASE_URL/api/project/$PROJECT_NAME/check-quality-result?sequence=$SEQUENCE" -k)
           
           if [ $? -ne 0 ]; then
-             echo "::error::Error fetching quality results (curl failed)."
+             echo "Error fetching quality results (curl failed)."
              exit 1
           fi
           
@@ -167,7 +167,7 @@ jobs:
           weaknessCount=$(echo "$response" | jq -re '.weaknessCount')
           
           if [ "$result" != "true" ]; then
-            echo "::error::Code quality check failed (weakness detected: $weaknessCount)"
+            echo "Code quality check failed (weakness detected: $weaknessCount)"
             exit 1
           else
             echo "Code quality check passed"
