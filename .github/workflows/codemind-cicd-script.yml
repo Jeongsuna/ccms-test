@@ -2,7 +2,7 @@
 # Base Jenkines Pipeline Script for Codemind v4.5.8
 #---------------------------------------------------
 
-name: Codemind CICD Base Script
+name: Codemind Github Actions Base Script
 
 on:
   workflow_dispatch:
@@ -33,6 +33,12 @@ jobs:
       COMMIT_ID: ${{ github.event.inputs.COMMIT_ID }}
 
     steps:
+      - name: 0. Set Bash (Git Bash) Path
+        shell: powershell
+        run: |
+          echo "C:\Program Files\Git\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "Workflow PATH modified to prioritize Git Bash."
+
       - name: 1. Login
         env:
           USERNAME: ${{ secrets.CODEMIND_USERNAME }}
@@ -105,8 +111,8 @@ jobs:
                continue
             fi
 
-            status=$(echo "$data" | jq -re '.status')
-            sequence=$(echo "$data" | jq -re '.sequence')
+            status=$(echo "$data" | sed -n 's/.*"status":"\([^"]*\)".*/\1/p')
+            sequence=$(echo "$data" | sed -n 's/.*"sequence":\([0-9]*\).*/\1/p')
 
             echo "SEQUENCE=$sequence" >> $GITHUB_ENV
           
@@ -147,10 +153,10 @@ jobs:
           
           echo "Quality analysis results for project ($PROJECT_NAME): $response"
 
-          result=$(echo "$response" | jq -re '.result')
+          result=$(echo "$response" | sed -n 's/.*"result":\([^,]*\).*/\1/p')
+          weaknessCount=$(echo "$response" | sed -n 's/.*"weaknessCount":\([0-9]*\).*/\1/p')
           
           if [ "$result" != "true" ]; then
-            weaknessCount=$(echo "$response" | jq -re '.weaknessCount')
             echo "Code quality check failed (weakness detected: $weaknessCount)"
             exit 1
           else
