@@ -112,11 +112,11 @@ jobs:
                continue
             fi
 
-#            status=$(echo "$data" | sed -n 's/.*"status":"\([^"]*\)".*/\1/p')
-#            sequence=$(echo "$data" | sed -n 's/.*"sequence":\([0-9]*\).*/\1/p')
+            # status=$(echo "$data" | sed -n 's/.*"status":"\([^"]*\)".*/\1/p')
+            # sequence=$(echo "$data" | sed -n 's/.*"sequence":\([0-9]*\).*/\1/p')
 
-#           windows 에서는 jq 라이브러리 설치하고 path 설치가 잘 안되어서 위와 같이 정규식으로 사용
-#           linux에서는 jq 라이브러리 설치가 쉽고 정규식보다 안전한 jq 라이브러리 사용 가능
+            # windows 에서는 jq 라이브러리 설치하고 path 설치가 잘 안되어서 위와 같이 정규식으로 사용
+            # linux에서는 jq 라이브러리 설치가 쉽고 정규식보다 안전한 jq 라이브러리 사용 가능
             status=$(echo "$data" | jq -re '.status')
             sequence=$(echo "$data" | jq -re '.sequence')
 
@@ -159,8 +159,8 @@ jobs:
           
           echo "Quality analysis results for project ($PROJECT_NAME): $response"
 
-#          result=$(echo "$response" | sed -n 's/.*"result":\([^,]*\).*/\1/p')
-#          weaknessCount=$(echo "$response" | sed -n 's/.*"weaknessCount":\([0-9]*\).*/\1/p')
+          # result=$(echo "$response" | sed -n 's/.*"result":\([^,]*\).*/\1/p')
+          # weaknessCount=$(echo "$response" | sed -n 's/.*"weaknessCount":\([0-9]*\).*/\1/p')
           result=$(echo "$response" | jq -re '.result')
           weaknessCount=$(echo "$response" | jq -re '.weaknessCount')
           
