@@ -167,7 +167,7 @@ jobs:
           weaknessCount=$(echo "$response" | jq -re '.weaknessCount')
           
           if [ "$result" != "true" ]; then
-            echo "::error::Code quality check failed (weakness detected: $weaknessCount)"
+            echo "::error title=Codemind Quality Check Failed::Weakness detected: $weaknessCount"
             exit 1
           else
             echo "Code quality check passed"
