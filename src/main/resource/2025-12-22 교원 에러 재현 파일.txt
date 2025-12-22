@@ -1,0 +1,5 @@
+20251222 교원 에러 재현
+
+재현이 안됩니다. 
+
+Malformed input or input contains unmappable characters
