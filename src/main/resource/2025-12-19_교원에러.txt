@@ -1,0 +1,5 @@
+20251219 교원그룹 에러
+
+Jenkins pipeline add
+
+last
