@@ -24,7 +24,7 @@ jobs:
 
     defaults:
       run:
-        shell: bash
+        shell: bash -x {0}
 
     env:
       CODEMIND_BASE_URL: "http://${{ secrets.CODEMIND_HOST }}"
